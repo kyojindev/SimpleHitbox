@@ -1,0 +1,11 @@
+[package]
+name = "kyojindev/simplehitbox"
+description = "A simple module for creating reliable and versatile hitboxes for Roblox."
+license = "MIT"
+version = "0.1.0"
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+exclude = ["selene.toml"]
+
+[dependencies]
+Signal = "sleitnick/signal@1.2.0"

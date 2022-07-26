@@ -7,7 +7,6 @@ A module made for creating simple hitboxes in Roblox.
 - Support for detecting more than players/npcs
 - Support for more hitbox types
 - Better debug support
-- Docs
 
 # Example
 

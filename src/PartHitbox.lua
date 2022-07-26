@@ -3,10 +3,39 @@ local Workspace = game:GetService("Workspace")
 
 local Signal = require(script.Parent.Parent.Signal)
 
+--[=[
+	@class PartHitbox
+
+	A hitbox that uses Roblox's :GetPartsInPart()
+]=]
 local PartHitbox = {
     Debug = false,
 }
 PartHitbox.__index = PartHitbox
+
+--[=[
+	@within PartHitbox
+	@prop OverlapParams OverlapParams
+
+	The overlap parameters for the hitbox.
+]=]
+
+--[=[
+	@within PartHitbox
+	@prop OnHit Signal
+
+	Fired when the hitbox gets a hit on a player.
+
+	```lua
+	local partHitbox = SimpleHitbox.NewPartHitbox(part)
+	partHitbox.OverlapParams = OverlapParams.new()
+	partHitbox:HitStart()
+
+	partHitbox.OnHit:Connect(function(hit, humanoid)
+		print("Hit!")
+	end)
+	```
+]=]
 
 function PartHitbox.new(inst: Instance)
 	if not inst then
@@ -62,6 +91,15 @@ function PartHitbox.new(inst: Instance)
     return self
 end
 
+--[=[
+	Start listening for hits.
+
+	@param maxTime number? -- Maximum time the hitbox can stay on for. Once this runs out, the hitbox will automatically stop listening for hits.
+
+	:::caution WARNING
+	The overlap parameters must be specified before calling this function!
+	:::
+]=]
 function PartHitbox:HitStart(maxTime: number?)
 	self._listenStart = os.clock()
 	self._listening = true
@@ -117,6 +155,9 @@ function PartHitbox:HitStart(maxTime: number?)
 	end)
 end
 
+--[=[
+	Stop listening for hits.
+]=]
 function PartHitbox:HitStop()
 	if self._listening then
 		self._heartbeatConnection:Disconnect()
@@ -129,6 +170,13 @@ function PartHitbox:HitStop()
 	end
 end
 
+--[=[
+	Destroy the hitbox. This automatically calls HitStop and destroys the signal.
+
+	:::caution WARNING
+	The hitbox will be unusable once this is called!
+	:::
+]=]
 function PartHitbox:Destroy()
     if self.Debug and self._debugInst then
         self._debugInst:Destroy()

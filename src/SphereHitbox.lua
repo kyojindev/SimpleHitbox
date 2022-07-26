@@ -3,10 +3,69 @@ local Workspace = game:GetService("Workspace")
 
 local Signal = require(script.Parent.Parent.Signal)
 
+--[=[
+	@class SphereHitbox
+
+	A hitbox that uses Roblox's :GetPartBoundsInRadius()
+]=]
 local SphereHitbox = {
     Debug = false,
 }
 SphereHitbox.__index = SphereHitbox
+
+--[=[
+	@within SphereHitbox
+	@prop OverlapParams OverlapParams
+
+	The overlap parameters for the hitbox.
+]=]
+
+--[=[
+	@within SphereHitbox
+	@prop Position Vector3
+
+	The position of the hitbox.
+
+	:::caution WARNING
+	Setting this position won't update the hitbox if you have provided an instance for it to follow!
+	:::
+
+	```lua
+	local sphereHitbox = SimpleHitbox.NewSphereHitbox()
+
+	sphereHitbox.Position = Vector3.new(0, 5, 0)
+	```
+]=]
+
+--[=[
+	@within SphereHitbox
+	@prop Radius number
+
+	The radius of the hitbox.
+
+	```lua
+	local sphereHitbox = SimpleHitbox.NewSphereHitbox()
+
+	sphereHitbox.Radius = 5
+	```
+]=]
+
+--[=[
+	@within SphereHitbox
+	@prop OnHit Signal
+
+	Fired when the hitbox gets a hit on a player.
+
+	```lua
+	local sphereHitbox = SimpleHitbox.NewSphereHitbox()
+	sphereHitbox.OverlapParams = OverlapParams.new()
+	sphereHitbox:HitStart()
+
+	sphereHitbox.OnHit:Connect(function(hit, humanoid)
+		print("Hit!")
+	end)
+	```
+]=]
 
 function SphereHitbox.new(inst: Instance?)
 	local self = setmetatable({
@@ -38,6 +97,15 @@ function SphereHitbox.new(inst: Instance?)
     return self
 end
 
+--[=[
+	Start listening for hits.
+
+	@param maxTime number? -- Maximum time the hitbox can stay on for. Once this runs out, the hitbox will automatically stop listening for hits.
+
+	:::caution WARNING
+	The position, radius and overlap parameters must be specified before calling this function!
+	:::
+]=]
 function SphereHitbox:HitStart(maxTime: number?)
 	self._listenStart = os.clock()
 	self._listening = true
@@ -55,9 +123,6 @@ function SphereHitbox:HitStart(maxTime: number?)
 		if self.OverlapParams then
 			if self._instance then
 				self.Position = self._instance.Position
-				if self._instance.Size then
-					self.Radius = self._instance.Size.Magnitude / 2
-				end
 			end
 			if self.Debug and self._debugInst then
 				self._debugInst.Position = self.Position
@@ -91,6 +156,9 @@ function SphereHitbox:HitStart(maxTime: number?)
 	end)
 end
 
+--[=[
+	Stop listening for hits.
+]=]
 function SphereHitbox:HitStop()
 	if self._listening then
 		self._heartbeatConnection:Disconnect()
@@ -101,7 +169,17 @@ function SphereHitbox:HitStop()
 	end
 end
 
+--[=[
+	Destroy the hitbox. This automatically calls HitStop and destroys the signal.
+
+	:::caution WARNING
+	The hitbox will be unusable once this is called!
+	:::
+]=]
 function SphereHitbox:Destroy()
+	self:HitStop()
+	self.OnHit:Destroy()
+	setmetatable(self, nil)
     if self.Debug and self._debugInst then
         self._debugInst:Destroy()
     end

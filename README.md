@@ -26,7 +26,3 @@ task.wait(10)
 
 sphereHitbox:HitStop()
 ```
-
-# Docs
-
-Docs currently unavailable.
